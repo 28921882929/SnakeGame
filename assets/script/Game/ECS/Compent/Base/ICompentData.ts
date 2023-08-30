@@ -1,6 +1,7 @@
 export interface ICompentData {
     name: string;
-    Init(): void;
+    enabeld: boolean;
+    Init?(): void;
 }
 export enum CompentType {
     Move_Compent = "MoveCompent",

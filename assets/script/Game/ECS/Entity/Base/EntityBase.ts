@@ -1,5 +1,7 @@
-import { Component } from "cc";
+import { Component, Prefab, Node } from "cc";
 import { ICompentData } from "../../Compent/Base/ICompentData";
+import { PoolManager } from "../../../../FrameWork/Manager/PoolManager";
+import { World } from "../../World";
 
 export class EntityBase extends Component {
 
@@ -10,11 +12,15 @@ export class EntityBase extends Component {
     public get entityId(): string {
         return this._entityId;
     }
-    constructor(id: string) {
-        super();
+    public init(id: string) {
         this._entityId = id;
         this.node.name = id;
     }
+    /**
+     * 实体激活状态
+     */
+    
+
     /**
      * 挂载组件Map
      */
@@ -24,15 +30,16 @@ export class EntityBase extends Component {
      * @param compent 
      */
     public addComp<T extends ICompentData>(compent: new () => T) {
-        let comp = new compent();
+        let comp = PoolManager.Get(compent);
         this._compentMap.set(comp.name, comp);
     }
     /**
      * 移除组件
      * @param string 
      */
-    public removeComp(string: string) {
-        this._compentMap.delete(string);
+    public removeComp<T extends ICompentData>(compent: new () => T) {
+        let comp = this._compentMap.delete(compent.name);
+        PoolManager.Put(comp);
     }
 
     public getComp(string: string): ICompentData {
@@ -43,4 +50,15 @@ export class EntityBase extends Component {
         return this._compentMap.has(string);
     }
 
+}
+
+export function createEntity<T extends EntityBase>(entity: new () => T, node: Node | Prefab, id: string): T {
+    let entityNode = PoolManager.GetPrefab(node);
+    let entityComp = entityNode.getComponent(entity);
+    if (entityComp == null) {
+        entityComp = entityNode.addComponent(entity);
+    }
+    entityComp.init(id);
+    World.Instance.entityMap.set(entityComp.entityId, entityComp);
+    return entityComp;
 }
