@@ -1,5 +1,8 @@
-import { Label, Layout, Node, RichText, Vec2, Vec3, sys, v2, v3 } from "cc";
+import { Label, Layout, Node, Prefab, RichText, Vec2, Vec3, sys, v2, v3 } from "cc";
 import { WECHAT_MINI_PROGRAM } from "cc/env";
+import { EntityBase } from "../Game/ECS/Entity/Base/EntityBase";
+import { PoolManager } from "../FrameWork/Manager/PoolManager";
+import { World } from "../Game/ECS/World";
 
 //延时
 export async function delay(milliseconds: number) {
@@ -484,4 +487,21 @@ export function isValue(data: any): boolean {
 //是否微信平台
 export function isWX() {
     return WECHAT_MINI_PROGRAM;
+}
+
+export function createEntity<T extends EntityBase>(entity: new () => T, node: Node | Prefab, id: string): T {
+    let entityNode = PoolManager.GetPrefab(node);
+    let entityComp = entityNode.getComponent(entity);
+    if (entityComp == null) {
+        entityComp = entityNode.addComponent(entity);
+    }
+    entityComp.init(id);
+    World.Instance.entityMap.set(entityComp.entityId, entityComp);
+    return entityComp;
+}
+
+export function createSystem<T extends ISystemBase>(system: { new(): T; }): T {
+    let sys = new system();
+    World.Instance.systemMap.set(sys.name, sys);
+    return sys;
 }

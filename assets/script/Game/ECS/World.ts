@@ -1,13 +1,10 @@
-import { Component, EventTouch, Node, _decorator, v3 } from "cc";
-import { ISystemBase, createSystem } from "./System/Base/ISystemBase";
-import { EntityBase, createEntity } from "./Entity/Base/EntityBase";
-import { NotificationManager } from "../../FrameWork/Manager/NotificationManager";
-import { TouchEventType } from "../../FrameWork/Manager/TouchManager";
+import { Component, Node, _decorator, v3 } from "cc";
 import { PoolManager } from "../../FrameWork/Manager/PoolManager";
-import { CompentType } from "./Compent/Base/ICompentData";
-import { MoveCompent } from "./Compent/MoveCompent";
-import { MoveSystem } from "./System/MoveSystem";
+import { EntityBase } from "./Entity/Base/EntityBase";
 import { TestEntity } from "./Entity/TestEntity";
+import { ISystemBase, createSystem } from "./System/Base/ISystemBase";
+import { MoveSystem } from "./System/MoveSystem";
+import { createEntity } from "../../Utils/CocosExtension";
 const { ccclass, property } = _decorator;
 @ccclass('World')
 export class World extends Component {

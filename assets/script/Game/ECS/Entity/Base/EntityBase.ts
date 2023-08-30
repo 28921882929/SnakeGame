@@ -1,7 +1,6 @@
-import { Component, Prefab, Node } from "cc";
-import { ICompentData } from "../../Compent/Base/ICompentData";
+import { Component } from "cc";
 import { PoolManager } from "../../../../FrameWork/Manager/PoolManager";
-import { World } from "../../World";
+import { IComponentData } from "../../Component/Base/IComponentData";
 
 export class EntityBase extends Component {
 
@@ -12,53 +11,39 @@ export class EntityBase extends Component {
     public get entityId(): string {
         return this._entityId;
     }
+
     public init(id: string) {
         this._entityId = id;
         this.node.name = id;
     }
     /**
-     * 实体激活状态
-     */
-    
-
-    /**
      * 挂载组件Map
      */
-    private _compentMap: Map<string, ICompentData> = new Map<string, ICompentData>();
+    private _ComponentMap: Map<any, IComponentData> = new Map<any, IComponentData>();
     /**
      * 添加组件
-     * @param compent 
+     * @param Component 
      */
-    public addComp<T extends ICompentData>(compent: new () => T) {
-        let comp = PoolManager.Get(compent);
-        this._compentMap.set(comp.name, comp);
+    public addComp<T extends IComponentData>(type: new () => T) {
+        let comp = PoolManager.Get(type);
+        this._ComponentMap.set(type, comp);
     }
     /**
      * 移除组件
      * @param string 
      */
-    public removeComp<T extends ICompentData>(compent: new () => T) {
-        let comp = this._compentMap.delete(compent.name);
+    public removeComp<T extends IComponentData>(type: new () => T) {
+        let comp = this._ComponentMap.delete(type);
         PoolManager.Put(comp);
     }
 
-    public getComp(string: string): ICompentData {
-        return this._compentMap.has(string) && this._compentMap.get(string);
+    public getComp<T extends IComponentData>(type: new () => T): T {
+        let comp = this._ComponentMap.has(type) && this._ComponentMap.get(type);
+        return comp as T;
     }
 
-    public hasComp(string: string): boolean {
-        return this._compentMap.has(string);
+    public hasComp<T extends IComponentData>(type: new () => T): boolean {
+        return this._ComponentMap.has(type);
     }
 
-}
-
-export function createEntity<T extends EntityBase>(entity: new () => T, node: Node | Prefab, id: string): T {
-    let entityNode = PoolManager.GetPrefab(node);
-    let entityComp = entityNode.getComponent(entity);
-    if (entityComp == null) {
-        entityComp = entityNode.addComponent(entity);
-    }
-    entityComp.init(id);
-    World.Instance.entityMap.set(entityComp.entityId, entityComp);
-    return entityComp;
 }
